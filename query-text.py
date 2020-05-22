@@ -11,6 +11,8 @@ import sys
 NL = "nl"
 TEXT = "text"
 LANG = "lang"
+USER = "user"
+SCREENNAME = "screen_name"
 IDSTR = "id_str"
 FULLTEXT = "full_text"
 EXTENDEDTWEET = "extended_tweet"
@@ -19,7 +21,7 @@ RETWEETEDSTATUS = "retweeted_status"
 def replaceNewlines(text):
     return(re.sub(r"\n",r"\\n",text))
 
-csvwriter = csv.DictWriter(sys.stdout,[IDSTR,TEXT])
+csvwriter = csv.DictWriter(sys.stdout,[IDSTR,USER,TEXT])
 csvwriter.writeheader()
 for line in sys.stdin:
     #try:
@@ -29,6 +31,7 @@ for line in sys.stdin:
         if lang == NL:
             idstr = jsonLine[IDSTR]
             text = jsonLine[TEXT]
+            user = jsonLine[USER][SCREENNAME]
             if EXTENDEDTWEET in jsonLine and \
                FULLTEXT in jsonLine[EXTENDEDTWEET]:
                 text = jsonLine[EXTENDEDTWEET][FULLTEXT]
@@ -36,5 +39,5 @@ for line in sys.stdin:
                EXTENDEDTWEET in jsonLine[RETWEETEDSTATUS] and \
                FULLTEXT in jsonLine[RETWEETEDSTATUS][EXTENDEDTWEET]:
                 text = jsonLine[RETWEETEDSTATUS][EXTENDEDTWEET][FULLTEXT]
-            csvwriter.writerow({IDSTR:idstr,TEXT:replaceNewlines(text)})
+            csvwriter.writerow({IDSTR:idstr,USER:user,TEXT:replaceNewlines(text)})
     #except: pass
