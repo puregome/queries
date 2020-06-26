@@ -17,15 +17,16 @@ IDSTR = "id_str"
 FULLTEXT = "full_text"
 EXTENDEDTWEET = "extended_tweet"
 RETWEETEDSTATUS = "retweeted_status"
+REPLYIDSTR = "in_reply_to_status_id_str"
+VERIFIED = "verified"
 
 def replaceNewlines(text):
     return(re.sub(r"\n",r"\\n",text))
 
-csvwriter = csv.DictWriter(sys.stdout,[IDSTR,USER,TEXT])
+csvwriter = csv.DictWriter(sys.stdout,[IDSTR,REPLYIDSTR,USER,VERIFIED,TEXT])
 csvwriter.writeheader()
 for line in sys.stdin:
-    #try:
-    if True:
+    try:
         jsonLine = json.loads(line)
         lang = jsonLine[LANG]
         if lang == NL:
@@ -39,5 +40,8 @@ for line in sys.stdin:
                EXTENDEDTWEET in jsonLine[RETWEETEDSTATUS] and \
                FULLTEXT in jsonLine[RETWEETEDSTATUS][EXTENDEDTWEET]:
                 text = jsonLine[RETWEETEDSTATUS][EXTENDEDTWEET][FULLTEXT]
-            csvwriter.writerow({IDSTR:idstr,USER:user,TEXT:replaceNewlines(text)})
-    #except: pass
+            replyIdstr = jsonLine[REPLYIDSTR]
+            if jsonLine[USER][VERIFIED]: verified = "1"
+            else: verified = ""
+            csvwriter.writerow({IDSTR:idstr,REPLYIDSTR:replyIdstr,USER:user,VERIFIED:verified,TEXT:replaceNewlines(text)})
+    except: pass
