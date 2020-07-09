@@ -19,10 +19,23 @@ EXTENDEDTWEET = "extended_tweet"
 RETWEETEDSTATUS = "retweeted_status"
 REPLYIDSTR = "in_reply_to_status_id_str"
 VERIFIED = "verified"
+DATADIR = "/data/puregome/"
+FOREIGNFILE = "FOREIGN"
+
+def readForeignTweets():
+    foreignTweets = {}
+    try:
+        inFile = open(DATADIR+FOREIGNFILE,"r")
+        for line in inFile:
+            foreignTweets[line.strip()] = True
+        inFile.close()
+    except: pass
+    return(foreignTweets)
 
 def replaceNewlines(text):
     return(re.sub(r"\n",r"\\n",text))
 
+foreignTweets = readForeignTweets()
 csvwriter = csv.DictWriter(sys.stdout,[IDSTR,REPLYIDSTR,USER,VERIFIED,TEXT])
 csvwriter.writeheader()
 for line in sys.stdin:
@@ -43,5 +56,7 @@ for line in sys.stdin:
             replyIdstr = jsonLine[REPLYIDSTR]
             if jsonLine[USER][VERIFIED]: verified = "1"
             else: verified = ""
-            csvwriter.writerow({IDSTR:idstr,REPLYIDSTR:replyIdstr,USER:user,VERIFIED:verified,TEXT:replaceNewlines(text)})
+            text = replaceNewlines(text)
+            if not text in foreignTweets:
+                csvwriter.writerow({IDSTR:idstr,REPLYIDSTR:replyIdstr,USER:user,VERIFIED:verified,TEXT:text})
     except: pass
