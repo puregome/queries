@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 # query.py: run a fixed query on a tweet file
-# usage: query.py
+# usage: query-text.py [-f]
+# note: option -f: read foreign tweets to be excluded from output
 # 20200410 erikt(at)xs4all.nl
 
 import csv
@@ -33,13 +34,18 @@ def readForeignTweets():
     return(foreignTweets)
 
 def replaceNewlines(text):
-    return(re.sub(r"\n",r"\\n",text))
+    text = re.sub(r"\r",r"\\r",text)
+    text = re.sub(r"\n",r"\\n",text)
+    return(text)
 
-foreignTweets = readForeignTweets()
-csvwriter = csv.DictWriter(sys.stdout,[IDSTR,REPLYIDSTR,USER,VERIFIED,TEXT])
+if len(sys.argv) > 1: foreignTweets = readForeignTweets()
+else: foreignTweets = {}
+
+csvwriter = csv.DictWriter(sys.stdout,[IDSTR,REPLYIDSTR,USER,VERIFIED,TEXT],lineterminator="\n")
 csvwriter.writeheader()
 for line in sys.stdin:
-    try:
+    #try:
+    if True:
         jsonLine = json.loads(line)
         lang = jsonLine[LANG]
         if lang == NL:
@@ -53,10 +59,10 @@ for line in sys.stdin:
                EXTENDEDTWEET in jsonLine[RETWEETEDSTATUS] and \
                FULLTEXT in jsonLine[RETWEETEDSTATUS][EXTENDEDTWEET]:
                 text = jsonLine[RETWEETEDSTATUS][EXTENDEDTWEET][FULLTEXT]
+            text = replaceNewlines(text)
             replyIdstr = jsonLine[REPLYIDSTR]
             if jsonLine[USER][VERIFIED]: verified = "1"
             else: verified = ""
-            text = replaceNewlines(text)
             if not text in foreignTweets:
-                csvwriter.writerow({IDSTR:idstr,REPLYIDSTR:replyIdstr,USER:user,VERIFIED:verified,TEXT:text})
-    except: pass
+                csvwriter.writerow({IDSTR:idstr,REPLYIDSTR:replyIdstr,USER:user,VERIFIED:verified,TEXT:text.strip()})
+    #except: pass
