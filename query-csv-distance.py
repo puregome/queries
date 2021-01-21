@@ -7,9 +7,9 @@ import csv
 import re
 import sys
 
-QUERY1 = r"1[.,]5\s*m"
-QUERY21 = r"afstand"
-QUERY22 = r"hou"
+QUERY1 = r"1[.,]5[ -]m"
+QUERY2 = r"afstand.*hou|hou.*afstand"
+QUERY3 = r"anderhalve[ -]*meter"
 TEXT = "text"
 
 
@@ -18,6 +18,6 @@ csvwriter = csv.DictWriter(sys.stdout,fieldnames=csvreader.fieldnames)
 csvwriter.writeheader()
 for row in csvreader:
     if re.search(QUERY1,row[TEXT],flags=re.IGNORECASE) or \
-       (re.search(QUERY21,row[TEXT],flags=re.IGNORECASE) and
-        re.search(QUERY22,row[TEXT],flags=re.IGNORECASE)):
+       re.search(QUERY2,row[TEXT],flags=re.IGNORECASE) or \
+       re.search(QUERY3,row[TEXT],flags=re.IGNORECASE):
            csvwriter.writerow(row)
