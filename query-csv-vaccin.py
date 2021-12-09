@@ -7,7 +7,7 @@ import csv
 import re
 import sys
 
-QUERY = "vaccin|pfizer|ingeënt|ingeent|inent|prik|spuit|bijwerking|-->|💉"
+QUERY = "vaccin|ingeënt|ingeent|inent|prik|spuit|bijwerking|-->|💉|pfizer|moderna|astrazeneca|astra|zeneca|novavax|biontech|booster|vax|mrna|inject"
 TEXT = "text"
 
 csvreader = csv.DictReader(sys.stdin)
